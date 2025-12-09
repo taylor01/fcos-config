@@ -1,0 +1,16 @@
+{
+  "ignition": {
+    "version": "3.4.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "sshAuthorizedKeys": [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOgWPn89ecLQ7ONUXlSLFCDvG0aZpPaEqm4UWkSjcZBj it_ops key for server access",
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM5SXBQcb8szWgacBxwTvS1HsHZFg+xvenRhw5JYJfMz Robert Taylor (Work)"
+        ]
+      }
+    ]
+  }
+}
