@@ -13,6 +13,18 @@
       }
     ]
   },
+  "storage": {
+    "files": [
+      {
+        "path": "/etc/selinux/config",
+        "mode": 420,
+        "overwrite": true,
+        "contents": {
+          "source": "data:,SELINUX%3Dpermissive%0ASELINUXTYPE%3Dtargeted%0A"
+        }
+      }
+    ]
+  },
   "systemd": {
     "units": [
       {
@@ -22,7 +34,7 @@
       {
         "name": "firewalld-swarm-ports.service",
         "enabled": true,
-        "contents": "[Unit]\nDescription=Open Docker Swarm ports\nAfter=firewalld.service\nRequires=firewalld.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=2377/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/udp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=4789/udp\nExecStart=/usr/bin/firewall-cmd --reload\nExecStart=/bin/touch /var/lib/%N.stamp\n\n[Install]\nWantedBy=multi-user.target\n"
+        "contents": "[Unit]\nDescription=Open Docker Swarm ports\nAfter=firewalld.service\nRequires=firewalld.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=2377/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/udp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=4789/udp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=9001/tcp\nExecStart=/usr/bin/firewall-cmd --reload\nExecStart=/bin/touch /var/lib/%N.stamp\n\n[Install]\nWantedBy=multi-user.target\n"
       }
     ]
   }
