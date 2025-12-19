@@ -12,5 +12,30 @@
         ]
       }
     ]
+  },
+  "storage": {
+    "files": [
+      {
+        "path": "/etc/yum.repos.d/docker-ce.repo",
+        "mode": 420,
+        "contents": {
+          "source": "data:,%5Bdocker-ce-stable%5D%0Aname%3DDocker%20CE%20Stable%0Abaseurl%3Dhttps%3A%2F%2Fdownload.docker.com%2Flinux%2Ffedora%2F%24releasever%2F%24basearch%2Fstable%0Aenabled%3D1%0Agpgcheck%3D1%0Agpgkey%3Dhttps%3A%2F%2Fdownload.docker.com%2Flinux%2Ffedora%2Fgpg%0A"
+        }
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "name": "rpm-ostree-install-docker.service",
+        "enabled": true,
+        "contents": "[Unit]\nDescription=Install Docker\nWants=network-online.target\nAfter=network-online.target\nBefore=zincati.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/bin/rpm-ostree install --apply-live docker-ce docker-ce-cli\nExecStart=/usr/bin/systemctl enable --now docker\nExecStart=/bin/touch /var/lib/%N.stamp\n\n[Install]\nWantedBy=multi-user.target\n"
+      },
+      {
+        "name": "firewalld-swarm-ports.service",
+        "enabled": true,
+        "contents": "[Unit]\nDescription=Open Docker Swarm ports\nAfter=firewalld.service\nRequires=firewalld.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=2377/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/udp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=4789/udp\nExecStart=/usr/bin/firewall-cmd --reload\nExecStart=/bin/touch /var/lib/%N.stamp\n\n[Install]\nWantedBy=multi-user.target\n"
+      }
+    ]
   }
 }
