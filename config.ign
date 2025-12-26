@@ -1,41 +1,46 @@
-{
-  "ignition": {
-    "version": "3.4.0"
-  },
-  "passwd": {
-    "users": [
-      {
-        "name": "core",
-        "sshAuthorizedKeys": [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOgWPn89ecLQ7ONUXlSLFCDvG0aZpPaEqm4UWkSjcZBj it_ops key for server access",
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM5SXBQcb8szWgacBxwTvS1HsHZFg+xvenRhw5JYJfMz Robert Taylor (Work)"
-        ]
-      }
-    ]
-  },
-  "storage": {
-    "files": [
-      {
-        "path": "/etc/selinux/config",
-        "mode": 420,
-        "overwrite": true,
-        "contents": {
-          "source": "data:,SELINUX%3Dpermissive%0ASELINUXTYPE%3Dtargeted%0A"
+  {
+    "ignition": {
+      "version": "3.4.0"
+    },
+    "passwd": {
+      "users": [
+        {
+          "name": "core",
+          "sshAuthorizedKeys": [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOgWPn89ecLQ7ONUXlSLFCDvG0aZpPaEqm4UWkSjcZBj it_ops key for server access",
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM5SXBQcb8szWgacBxwTvS1HsHZFg+xvenRhw5JYJfMz Robert Taylor (Work)"
+          ]
         }
-      }
-    ]
-  },
-  "systemd": {
-    "units": [
-      {
-        "name": "docker.service",
-        "enabled": true
-      },
-      {
-        "name": "firewalld-swarm-ports.service",
-        "enabled": true,
-        "contents": "[Unit]\nDescription=Open Docker Swarm ports\nAfter=firewalld.service\nRequires=firewalld.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=2377/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/udp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=4789/udp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=9001/tcp\nExecStart=/usr/bin/firewall-cmd --reload\nExecStart=/bin/touch /var/lib/%N.stamp\n\n[Install]\nWantedBy=multi-user.target\n"
-      }
-    ]
+      ]
+    },
+    "storage": {
+      "files": [
+        {
+          "path": "/etc/selinux/config",
+          "mode": 420,
+          "overwrite": true,
+          "contents": {
+            "source": "data:,SELINUX%3Dpermissive%0ASELINUXTYPE%3Dtargeted%0A"
+          }
+        }
+      ]
+    },
+    "systemd": {
+      "units": [
+        {
+          "name": "docker.service",
+          "enabled": true
+        },
+        {
+          "name": "firewalld-swarm-ports.service",
+          "enabled": true,
+          "contents": "[Unit]\nDescription=Open Docker Swarm ports\nAfter=firewalld.service\nRequires=firewalld.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=2377/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/udp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=4789/udp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=9001/tcp\nExecStart=/usr/bin/firewall-cmd --reload\nExecStart=/bin/touch /var/lib/%N.stamp\n\n[Install]\nWantedBy=multi-user.target\n"
+        },
+        {
+          "name": "install-vmtools.service",
+          "enabled": true,
+          "contents": "[Unit]\nDescription=Install VMware Tools\nAfter=network-online.target\nWants=network-online.target\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/bin/rpm-ostree install --apply-live --allow-inactive open-vm-tools\nExecStartPost=/usr/bin/systemctl enable vmtoolsd.service\nExecStartPost=/usr/bin/systemctl start vmtoolsd.service\nExecStartPost=/bin/touch /var/lib/%N.stamp\n\n[Install]\nWantedBy=multi-user.target\n"
+        }
+      ]
+    }
   }
-}
