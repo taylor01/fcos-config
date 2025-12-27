@@ -1,0 +1,102 @@
+{
+  "ignition": {
+    "version": "3.4.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "sshAuthorizedKeys": [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOgWPn89ecLQ7ONUXlSLFCDvG0aZpPaEqm4UWkSjcZBj it_ops key for server access",
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIM5SXBQcb8szWgacBxwTvS1HsHZFg+xvenRhw5JYJfMz Robert Taylor (Work)"
+        ],
+        "groups": ["wheel", "docker"]
+      }
+    ]
+  },
+  "storage": {
+    "files": [
+      {
+        "path": "/etc/hostname",
+        "mode": 420,
+        "contents": {
+          "source": "data:,beelink"
+        }
+      },
+      {
+        "path": "/etc/selinux/config",
+        "mode": 420,
+        "overwrite": true,
+        "contents": {
+          "source": "data:,SELINUX%3Denforcing%0ASELINUXTYPE%3Dtargeted%0A"
+        }
+      },
+      {
+        "path": "/etc/zincati/config.d/55-updates-strategy.toml",
+        "mode": 420,
+        "contents": {
+          "source": "data:,%5Bupdates%5D%0Astrategy%20%3D%20%22periodic%22%0A%0A%5Bupdates.periodic%5D%0Atime_zone%20%3D%20%22America%2FNew_York%22%0A%5B%5Bupdates.periodic.window%5D%5D%0Adays%20%3D%20%5B%20%22Sun%22%20%5D%0Astart_time%20%3D%20%2203%3A00%22%0Alength_minutes%20%3D%20120%0A"
+        }
+      },
+      {
+        "path": "/etc/docker/daemon.json",
+        "mode": 420,
+        "contents": {
+          "source": "data:,%7B%0A%20%20%22log-driver%22%3A%20%22json-file%22%2C%0A%20%20%22log-opts%22%3A%20%7B%0A%20%20%20%20%22max-size%22%3A%20%2210m%22%2C%0A%20%20%20%20%22max-file%22%3A%20%223%22%0A%20%20%7D%2C%0A%20%20%22storage-driver%22%3A%20%22overlay2%22%0A%7D%0A"
+        }
+      }
+    ],
+    "directories": [
+      {
+        "path": "/home/core/containers",
+        "user": {
+          "name": "core"
+        },
+        "group": {
+          "name": "core"
+        }
+      },
+      {
+        "path": "/home/core/containers/portainer",
+        "user": {
+          "name": "core"
+        },
+        "group": {
+          "name": "core"
+        }
+      },
+      {
+        "path": "/home/core/containers/homeassistant",
+        "user": {
+          "name": "core"
+        },
+        "group": {
+          "name": "core"
+        }
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "name": "docker.service",
+        "enabled": true
+      },
+      {
+        "name": "firewalld-container-ports.service",
+        "enabled": true,
+        "contents": "[Unit]\nDescription=Open container service ports\nAfter=firewalld.service\nRequires=firewalld.service\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\n# Docker Swarm\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=2377/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=7946/udp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=4789/udp\n# Portainer\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=9443/tcp\n# Home Assistant\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=8123/tcp\n# Traefik (reverse proxy)\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=80/tcp\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=443/tcp\n# Grafana\nExecStart=/usr/bin/firewall-cmd --permanent --add-port=3000/tcp\nExecStart=/usr/bin/firewall-cmd --reload\nExecStart=/bin/touch /var/lib/%N.stamp\n\n[Install]\nWantedBy=multi-user.target\n"
+      },
+      {
+        "name": "portainer.service",
+        "enabled": true,
+        "contents": "[Unit]\nDescription=Portainer Container Management\nAfter=docker.service network-online.target\nRequires=docker.service\nWants=network-online.target\n\n[Service]\nType=simple\nRestart=always\nRestartSec=10\nExecStartPre=-/usr/bin/docker stop portainer\nExecStartPre=-/usr/bin/docker rm portainer\nExecStartPre=/usr/bin/docker pull portainer/portainer-ce:latest\nExecStart=/usr/bin/docker run --name portainer --rm -p 9443:9443 -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:latest\nExecStop=/usr/bin/docker stop portainer\n\n[Install]\nWantedBy=multi-user.target\n"
+      },
+      {
+        "name": "watchtower.service",
+        "enabled": true,
+        "contents": "[Unit]\nDescription=Watchtower - Automatic container updates\nAfter=docker.service network-online.target\nRequires=docker.service\nWants=network-online.target\n\n[Service]\nType=simple\nRestart=always\nRestartSec=10\nExecStartPre=-/usr/bin/docker stop watchtower\nExecStartPre=-/usr/bin/docker rm watchtower\nExecStartPre=/usr/bin/docker pull containrrr/watchtower:latest\nExecStart=/usr/bin/docker run --name watchtower --rm -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower --cleanup --schedule \"0 0 4 * * 0\"\nExecStop=/usr/bin/docker stop watchtower\n\n[Install]\nWantedBy=multi-user.target\n"
+      }
+    ]
+  }
+}
