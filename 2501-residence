@@ -24,11 +24,6 @@
         }
       },
       {
-        "path": "/etc/localtime",
-        "overwrite": true,
-        "target": "/usr/share/zoneinfo/America/New_York"
-      },
-      {
         "path": "/etc/selinux/config",
         "mode": 420,
         "overwrite": true,
@@ -54,8 +49,15 @@
         "path": "/usr/local/bin/install-tailscale.sh",
         "mode": 493,
         "contents": {
-          "source": "data:,%23!%2Fbin%2Fbash%0Acurl%20-fsSL%20https%3A%2F%2Ftailscale.com%2Finstall.sh%20%7C%20sh%0Atailscale%20up%20--auth-key%3Dtskey-auth-kaUDrFSsJ211CNTRL-KrW6HnxrNQDgsrsHPDJeQDyuPaWzqU7XW%0A"
+          "source": "data:,%23!%2Fbin%2Fbash%0Acurl%20-fsSL%20https%3A%2F%2Ftailscale.com%2Finstall.sh%20%7C%20sh%0Atailscale%20up%20--auth-key%3Dtskey-auth-kqVd6scWAP11CNTRL-ZLZVJVHMRvhgGzrF1LukvhaXssk3Bbp1%0A"
         }
+      }
+    ],
+    "links": [
+      {
+        "path": "/etc/localtime",
+        "overwrite": true,
+        "target": "/usr/share/zoneinfo/America/New_York"
       }
     ],
     "directories": [
