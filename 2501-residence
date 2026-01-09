@@ -44,13 +44,6 @@
         "contents": {
           "source": "data:,%7B%0A%20%20%22log-driver%22%3A%20%22json-file%22%2C%0A%20%20%22log-opts%22%3A%20%7B%0A%20%20%20%20%22max-size%22%3A%20%2210m%22%2C%0A%20%20%20%20%22max-file%22%3A%20%223%22%0A%20%20%7D%2C%0A%20%20%22storage-driver%22%3A%20%22overlay2%22%0A%7D%0A"
         }
-      },
-      {
-        "path": "/usr/local/bin/install-tailscale.sh",
-        "mode": 493,
-        "contents": {
-          "source": "data:,%23!%2Fbin%2Fbash%0Acurl%20-fsSL%20https%3A%2F%2Ftailscale.com%2Finstall.sh%20%7C%20sh%0Atailscale%20up%20--auth-key%3Dtskey-auth-kqVd6scWAP11CNTRL-ZLZVJVHMRvhgGzrF1LukvhaXssk3Bbp1%0A"
-        }
       }
     ],
     "links": [
@@ -77,11 +70,6 @@
       {
         "name": "docker.service",
         "enabled": true
-      },
-      {
-        "name": "install-tailscale.service",
-        "enabled": true,
-        "contents": "[Unit]\nDescription=Install and configure Tailscale\nAfter=network-online.target\nWants=network-online.target\nConditionPathExists=!/var/lib/%N.stamp\n\n[Service]\nType=oneshot\nRemainAfterExit=yes\nExecStart=/usr/local/bin/install-tailscale.sh\nExecStartPost=/bin/touch /var/lib/%N.stamp\n\n[Install]\nWantedBy=multi-user.target\n"
       }
     ]
   }
